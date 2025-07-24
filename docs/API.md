@@ -2,6 +2,8 @@
 
 This document describes the API integration between the NoseCone Discord bot and n8n workflows, including webhook payload structures, authentication methods, and workflow examples.
 
+> **📝 Important Update:** As of 2024, Discord has removed the Client Secret from their Developer Portal. Only the Bot Token and Client ID are now required for authentication.
+
 ## Overview
 
 NoseCone sends Discord message data to n8n workflows via HTTP POST requests to configured webhook endpoints. The data is structured as JSON payloads containing comprehensive information about Discord messages, users, channels, and commands.

@@ -66,7 +66,7 @@ const requiredEnvVars = [
 ];
 
 const optionalEnvVars = [
-  'DISCORD_CLIENT_SECRET',
+  // 'DISCORD_CLIENT_SECRET', // No longer available in Discord Developer Portal
   'N8N_WEBHOOK_TOKEN',
   'N8N_SECONDARY_WEBHOOK',
   'BOT_PREFIX',

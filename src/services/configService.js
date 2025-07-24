@@ -20,7 +20,7 @@ class ConfigService {
       discord: {
         botToken: process.env.DISCORD_BOT_TOKEN,
         clientId: process.env.DISCORD_CLIENT_ID,
-        clientSecret: process.env.DISCORD_CLIENT_SECRET,
+        // clientSecret: process.env.DISCORD_CLIENT_SECRET, // No longer available in Discord Developer Portal
       },
       n8n: {
         webhookUrl: process.env.N8N_WEBHOOK_URL,

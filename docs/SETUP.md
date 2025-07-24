@@ -39,9 +39,14 @@ In the Discord Developer Portal:
 
 ### 1.3 Get Required IDs
 
-From the same OAuth2 section, copy:
-- **Client ID** (Application ID)
-- **Client Secret** (if you plan to use advanced OAuth flows)
+From the **General Information** tab, copy:
+- **Application ID** (this is your `DISCORD_CLIENT_ID`)
+
+⚠️ **Important:** Discord has **removed the Client Secret** from the Developer Portal as of 2024. You will only need:
+- **Bot Token** (from the Bot tab)
+- **Application ID/Client ID** (from the General Information tab)
+
+The old `DISCORD_CLIENT_SECRET` environment variable is no longer available and not needed for this bot.
 
 ## Step 2: n8n Webhook Setup
 
@@ -89,7 +94,7 @@ npm install
    # Discord Configuration
    DISCORD_BOT_TOKEN=your_bot_token_here
    DISCORD_CLIENT_ID=your_client_id_here
-   DISCORD_CLIENT_SECRET=your_client_secret_here
+   # DISCORD_CLIENT_SECRET=your_client_secret_here  # No longer available in Discord Developer Portal
 
    # n8n Configuration
    N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/discord-bot
@@ -108,7 +113,7 @@ npm install
 |----------|----------|-------------|
 | `DISCORD_BOT_TOKEN` | Yes | Bot token from Discord Developer Portal |
 | `DISCORD_CLIENT_ID` | Yes | Application ID from Discord Developer Portal |
-| `DISCORD_CLIENT_SECRET` | No | Client secret for advanced OAuth (optional) |
+| `DISCORD_CLIENT_SECRET` | No | ~~Client secret for advanced OAuth~~ **No longer available in Discord Developer Portal** |
 | `N8N_WEBHOOK_URL` | Yes | Primary n8n webhook URL |
 | `N8N_WEBHOOK_TOKEN` | No | Authentication token for webhooks |
 | `N8N_SECONDARY_WEBHOOK` | No | Secondary webhook for commands |

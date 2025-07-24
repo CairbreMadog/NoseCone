@@ -58,11 +58,13 @@ NoseCone is a powerful Discord bot that seamlessly integrates with n8n workflow 
 
 Create a `.env` file with the following variables:
 
+> **📝 Note:** Discord has removed the Client Secret from their Developer Portal. You only need the Bot Token and Client ID.
+
 ```env
 # Discord Configuration
 DISCORD_BOT_TOKEN=your_bot_token_here
 DISCORD_CLIENT_ID=your_client_id_here
-DISCORD_CLIENT_SECRET=your_client_secret_here
+# DISCORD_CLIENT_SECRET=your_client_secret_here  # No longer available in Discord Developer Portal
 
 # n8n Configuration
 N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook/discord-bot
