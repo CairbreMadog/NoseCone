@@ -1,0 +1,93 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.sublime-project
+.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Documentation
+docs/
+*.md
+README.md
+
+# Docker files
+docker/
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Scripts not needed in production
+scripts/validate-setup.js
+
+# Build outputs
+dist/
+build/
+
+# Testing
+.jest/
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+
+# Temporary files
+tmp/
+temp/
+
+# Package manager lock files (keep package-lock.json but exclude others)
+yarn.lock
+pnpm-lock.yaml
+
+# ESLint
+.eslintrc*
+.eslintignore
+
+# Prettier
+.prettierrc*
+.prettierignore
+
+# Other config files
+.editorconfig
+.commitlintrc* 

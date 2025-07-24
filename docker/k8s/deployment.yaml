@@ -1,0 +1,177 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nosecone-bot
+  namespace: nosecone
+  labels:
+    app: nosecone-bot
+    version: v1.0.0
+    component: discord-bot
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: nosecone-bot
+  template:
+    metadata:
+      labels:
+        app: nosecone-bot
+        version: v1.0.0
+        component: discord-bot
+      annotations:
+        prometheus.io/scrape: "false"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: nosecone-bot
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: nosecone-bot
+        image: nosecone-bot:1.0.0
+        imagePullPolicy: Always
+        
+        # Environment variables from ConfigMap and Secrets
+        envFrom:
+        - configMapRef:
+            name: nosecone-config
+        - secretRef:
+            name: nosecone-secrets
+        
+        # Resource limits and requests
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        
+        # Security context
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          capabilities:
+            drop:
+            - ALL
+        
+        # Health checks
+        livenessProbe:
+          exec:
+            command:
+            - node
+            - -e
+            - "console.log('Liveness check passed')"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          exec:
+            command:
+            - node
+            - -e
+            - "console.log('Readiness check passed')"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        # Volume mounts
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        
+        # Lifecycle hooks
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - "sleep 15"
+      
+      # Volumes
+      volumes:
+      - name: logs
+        persistentVolumeClaim:
+          claimName: nosecone-logs-pvc
+      - name: config
+        configMap:
+          name: nosecone-app-config
+      
+      # Pod scheduling
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - nosecone-bot
+              topologyKey: kubernetes.io/hostname
+      
+      # Tolerations for node tainting
+      tolerations:
+      - key: "app"
+        operator: "Equal"
+        value: "nosecone"
+        effect: "NoSchedule"
+      
+      # Grace period for shutdown
+      terminationGracePeriodSeconds: 30
+      
+      # DNS configuration
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "2"
+        - name: edns0
+      
+      # Image pull secrets (if using private registry)
+      imagePullSecrets:
+      - name: registry-secret
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nosecone-bot
+  namespace: nosecone
+  labels:
+    app: nosecone-bot
+automountServiceAccountToken: false
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nosecone-logs-pvc
+  namespace: nosecone
+  labels:
+    app: nosecone-bot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard 

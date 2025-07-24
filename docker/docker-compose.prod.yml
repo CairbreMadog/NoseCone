@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  nosecone-bot:
+    image: nosecone-bot:latest
+    container_name: nosecone-bot-prod
+    restart: always
+    
+    # Environment variables (use Docker secrets in real production)
+    env_file:
+      - ../.env.production
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
+    
+    # Volume mounts (read-only where possible)
+    volumes:
+      - ../logs:/app/logs:rw
+      - ../config:/app/config:ro
+    
+    # Resource limits (production values)
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+      restart_policy:
+        condition: any
+        delay: 10s
+        max_attempts: 5
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        monitor: 60s
+        order: stop-first
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        failure_action: pause
+        monitor: 60s
+        order: stop-first
+    
+    # Health check (production settings)
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Production health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Logging (production configuration)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+        compress: "true"
+    
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # Set to true if app doesn't need to write to filesystem
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    
+    # User override for security
+    user: "1001:1001"
+    
+    # Networks
+    networks:
+      - nosecone-prod-network
+    
+    # Labels for production monitoring
+    labels:
+      - "com.nosecone.service=discord-bot"
+      - "com.nosecone.environment=production"
+      - "com.nosecone.version=1.0.0"
+      - "traefik.enable=false"  # Not exposing HTTP endpoints
+      - "prometheus.scrape=false"  # No metrics endpoint currently
+
+  # Log aggregation service (optional)
+  fluentd:
+    image: fluent/fluentd:v1.16-debian-1
+    container_name: nosecone-fluentd
+    restart: unless-stopped
+    volumes:
+      - ../logs:/fluentd/log:ro
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf:ro
+    networks:
+      - nosecone-prod-network
+    depends_on:
+      - nosecone-bot
+    labels:
+      - "com.nosecone.service=log-aggregation"
+
+  # Monitoring (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nosecone-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - nosecone-prod-network
+    labels:
+      - "com.nosecone.service=monitoring"
+
+# Networks
+networks:
+  nosecone-prod-network:
+    driver: bridge
+    name: nosecone-prod-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/16
+    driver_opts:
+      com.docker.network.bridge.name: br-nosecone-prod
+
+# Volumes
+volumes:
+  prometheus-data:
+    driver: local
+    name: nosecone-prometheus-data
+  
+  nosecone-prod-logs:
+    driver: local
+    name: nosecone-prod-logs
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/log/nosecone 

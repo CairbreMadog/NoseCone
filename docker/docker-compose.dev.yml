@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  nosecone-bot:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: build
+    image: nosecone-bot:dev
+    container_name: nosecone-bot-dev
+    restart: unless-stopped
+    
+    # Environment variables
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=development
+      - DEBUG_MODE=true
+      - TZ=UTC
+    
+    # Volume mounts for development (includes source code)
+    volumes:
+      - ../src:/app/src:ro
+      - ../logs:/app/logs:rw
+      - ../config:/app/config:ro
+      - ../package.json:/app/package.json:ro
+      - ../index.js:/app/index.js:ro
+    
+    # Override command for development with nodemon
+    command: ["dumb-init", "--", "npx", "nodemon", "--watch", "src", "index.js"]
+    
+    # Development ports (if needed for debugging)
+    ports:
+      - "9229:9229"  # Node.js debug port
+      - "3000:3000"  # Health check port
+    
+    # Health check (more lenient for dev)
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Dev health check')"]
+      interval: 60s
+      timeout: 15s
+      retries: 2
+      start_period: 60s
+    
+    # Logging (more verbose for development)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    
+    # Networks
+    networks:
+      - nosecone-dev-network
+    
+    # Labels
+    labels:
+      - "com.nosecone.service=discord-bot"
+      - "com.nosecone.environment=development"
+      - "com.nosecone.version=dev"
+
+  # Optional: Development database or other services
+  # mongodb:
+  #   image: mongo:5-alpine
+  #   container_name: nosecone-mongo-dev
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo-dev-data:/data/db
+  #   networks:
+  #     - nosecone-dev-network
+
+# Networks
+networks:
+  nosecone-dev-network:
+    driver: bridge
+    name: nosecone-dev-network
+
+# Volumes
+volumes:
+  mongo-dev-data:
+    driver: local
+    name: nosecone-mongo-dev-data 

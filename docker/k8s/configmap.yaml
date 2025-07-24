@@ -1,0 +1,164 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nosecone-config
+  namespace: nosecone
+  labels:
+    app: nosecone-bot
+    component: configuration
+data:
+  # Bot configuration
+  NODE_ENV: "production"
+  BOT_PREFIX: "!"
+  DEBUG_MODE: "false"
+  TZ: "UTC"
+  
+  # Application settings
+  NODE_OPTIONS: "--max-old-space-size=512"
+  
+  # Optional: Command channel (leave empty to allow all channels)
+  COMMAND_CHANNEL_ID: ""
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nosecone-app-config
+  namespace: nosecone
+  labels:
+    app: nosecone-bot
+    component: app-configuration
+data:
+  commands.json: |
+    {
+      "commands": {
+        "workflow": {
+          "name": "workflow",
+          "description": "Trigger n8n workflows or get workflow information",
+          "category": "n8n",
+          "enabled": true,
+          "permissions": [],
+          "cooldown": 5,
+          "subcommands": {
+            "test": {
+              "description": "Test the connection to n8n webhooks",
+              "permissions": []
+            },
+            "trigger": {
+              "description": "Manually trigger a workflow message to n8n",
+              "permissions": [],
+              "options": {
+                "message": {
+                  "type": "string",
+                  "description": "Message to send to n8n workflow",
+                  "required": true,
+                  "maxLength": 2000
+                }
+              }
+            },
+            "status": {
+              "description": "Get bot and n8n integration status",
+              "permissions": []
+            }
+          }
+        },
+        "help": {
+          "name": "help",
+          "description": "Get help information about NoseCone bot commands and features",
+          "category": "utility",
+          "enabled": true,
+          "permissions": [],
+          "cooldown": 10
+        }
+      },
+      "categories": {
+        "n8n": {
+          "name": "n8n Integration",
+          "description": "Commands for interacting with n8n workflows",
+          "emoji": "🔗"
+        },
+        "utility": {
+          "name": "Utility",
+          "description": "Utility commands for bot information and help",
+          "emoji": "🛠️"
+        }
+      },
+      "settings": {
+        "globalCooldown": 3,
+        "maxCommandsPerMinute": 20,
+        "enableCommandLogging": true,
+        "ephemeralByDefault": true
+      }
+    }
+  
+  permissions.json: |
+    {
+      "defaultPermissions": {
+        "commands": {
+          "workflow": ["SEND_MESSAGES"],
+          "help": []
+        },
+        "channels": {
+          "required": ["VIEW_CHANNEL", "SEND_MESSAGES"],
+          "optional": ["READ_MESSAGE_HISTORY", "USE_SLASH_COMMANDS"]
+        }
+      },
+      "roles": {
+        "admin": {
+          "permissions": ["ADMINISTRATOR"],
+          "commands": "*",
+          "description": "Full access to all bot features"
+        },
+        "moderator": {
+          "permissions": ["MANAGE_MESSAGES", "MANAGE_CHANNELS"],
+          "commands": ["workflow", "help"],
+          "description": "Access to workflow commands and help"
+        },
+        "user": {
+          "permissions": [],
+          "commands": ["help", "workflow.status"],
+          "description": "Basic access to help and status commands"
+        }
+      },
+      "channelTypes": {
+        "allowed": [
+          "GUILD_TEXT",
+          "GUILD_PUBLIC_THREAD",
+          "GUILD_PRIVATE_THREAD",
+          "DM"
+        ],
+        "restricted": [
+          "GUILD_VOICE",
+          "GUILD_STAGE_VOICE",
+          "GUILD_CATEGORY"
+        ]
+      },
+      "restrictions": {
+        "botChannelOnly": false,
+        "dmAllowed": true,
+        "requiresGuild": false,
+        "rateLimiting": {
+          "enabled": true,
+          "maxRequestsPerMinute": 30,
+          "maxRequestsPerHour": 100
+        }
+      },
+      "webhookPermissions": {
+        "required": {
+          "discord": [
+            "bot",
+            "applications.commands"
+          ],
+          "n8n": [
+            "webhook.read",
+            "webhook.write"
+          ]
+        },
+        "optional": {
+          "discord": [
+            "guilds.read",
+            "guilds.members.read"
+          ]
+        }
+      }
+    } 

@@ -235,6 +235,15 @@ COPY . .
 CMD ["npm", "start"]
 ```
 
+This addition provides multiple service setup options:
+
+1. **PM2** - The most popular and cross-platform option that works on Windows, Linux, and macOS
+2. **systemd** - Native Linux service manager
+3. **node-windows** - For creating native Windows services
+4. **Docker** - Container-based approach with restart policies
+
+Each option ensures the bot will automatically start when the system reboots. PM2 is generally recommended as it's the easiest to set up and manage across different platforms.
+
 ## 🐛 Troubleshooting
 
 ### Common Issues

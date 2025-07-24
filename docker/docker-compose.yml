@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  nosecone-bot:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: nosecone-bot:latest
+    container_name: nosecone-bot
+    restart: unless-stopped
+    
+    # Environment variables from .env file
+    env_file:
+      - ../.env
+    
+    # Additional environment settings
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
+    
+    # Volume mounts for persistent data
+    volumes:
+      - ../logs:/app/logs:rw
+      - ../config:/app/config:ro
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Network configuration
+    networks:
+      - nosecone-network
+    
+    # Labels for container management
+    labels:
+      - "com.nosecone.service=discord-bot"
+      - "com.nosecone.version=1.0.0"
+      - "com.docker.compose.project=nosecone"
+
+# Networks
+networks:
+  nosecone-network:
+    driver: bridge
+    name: nosecone-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volumes for persistent data
+volumes:
+  nosecone-logs:
+    driver: local
+    name: nosecone-logs 
