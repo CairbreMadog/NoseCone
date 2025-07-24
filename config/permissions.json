@@ -1,0 +1,70 @@
+{
+  "defaultPermissions": {
+    "commands": {
+      "workflow": ["SEND_MESSAGES"],
+      "help": []
+    },
+    "channels": {
+      "required": ["VIEW_CHANNEL", "SEND_MESSAGES"],
+      "optional": ["READ_MESSAGE_HISTORY", "USE_SLASH_COMMANDS"]
+    }
+  },
+  "roles": {
+    "admin": {
+      "permissions": ["ADMINISTRATOR"],
+      "commands": "*",
+      "description": "Full access to all bot features"
+    },
+    "moderator": {
+      "permissions": ["MANAGE_MESSAGES", "MANAGE_CHANNELS"],
+      "commands": ["workflow", "help"],
+      "description": "Access to workflow commands and help"
+    },
+    "user": {
+      "permissions": [],
+      "commands": ["help", "workflow.status"],
+      "description": "Basic access to help and status commands"
+    }
+  },
+  "channelTypes": {
+    "allowed": [
+      "GUILD_TEXT",
+      "GUILD_PUBLIC_THREAD",
+      "GUILD_PRIVATE_THREAD",
+      "DM"
+    ],
+    "restricted": [
+      "GUILD_VOICE",
+      "GUILD_STAGE_VOICE",
+      "GUILD_CATEGORY"
+    ]
+  },
+  "restrictions": {
+    "botChannelOnly": false,
+    "dmAllowed": true,
+    "requiresGuild": false,
+    "rateLimiting": {
+      "enabled": true,
+      "maxRequestsPerMinute": 30,
+      "maxRequestsPerHour": 100
+    }
+  },
+  "webhookPermissions": {
+    "required": {
+      "discord": [
+        "bot",
+        "applications.commands"
+      ],
+      "n8n": [
+        "webhook.read",
+        "webhook.write"
+      ]
+    },
+    "optional": {
+      "discord": [
+        "guilds.read",
+        "guilds.members.read"
+      ]
+    }
+  }
+} 
