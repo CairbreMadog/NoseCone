@@ -23,7 +23,7 @@ NoseCone is a powerful Discord bot that seamlessly integrates with n8n workflow 
 
 ### Prerequisites
 
-- Node.js v16.0.0 or higher
+- Node.js v16.0.0 or higher ( sudo apt install nodejs npm )
 - Discord Developer Account
 - n8n instance (self-hosted or cloud)
 - Basic knowledge of Discord bot setup
@@ -32,7 +32,7 @@ NoseCone is a powerful Discord bot that seamlessly integrates with n8n workflow 
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/CairbreMadog/NoseCone
    cd NoseCone
    ```
 
