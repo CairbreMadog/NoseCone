@@ -281,9 +281,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- Create an [issue](https://github.com/your-repo/issues) for bug reports
-- Join our [Discord server](https://discord.gg/your-server) for community support
-- Check the [documentation](docs/) for detailed guides
+- Create an [issue](https://github.com/CairbreMadog/NoseCone/issues) for bug reports
+
+
 
 ---
 
